@@ -7,12 +7,14 @@ import path from "node:path";
 import logUpdate from "log-update";
 import { log } from "node:console";
 import { sendTelegramMessage } from "./bot.mjs";
+import { machine } from "node:os";
 
 config();
 const pc = picocolors;
 const emailInput = "#loginEmail";
 const passwdInput = "#loginPassword";
 const delayPassed = process.argv[2] || 10000;
+const filePath = path.join(process.cwd(), "totalMachinesNames.txt");
 
 const httpDelay =
   isCasteableToNumber(delayPassed) && Number(delayPassed) > 10000
@@ -42,10 +44,10 @@ async function scrapeMachinesNames() {
     // Espera para la navegación o para un mensaje de error específico
     await page.waitForNavigation({
       waitUntil: "domcontentloaded",
-      timeout: 3000,
+      timeout: 5000,
     });
     console.log(pc.green("[+] Login successful!"));
-    console.log("[+] HTPP Delay: " + pc.magenta(httpDelay) + " ms");
+    console.log("[+] HTTP Delay: " + pc.magenta(httpDelay) + " ms");
   } catch (error) {
     console.error(pc.red("[-] Login failed! Exiting..."));
     await browser.close();
@@ -67,19 +69,35 @@ async function scrapeMachinesNames() {
       );
 
       const machineNames = await page.evaluate(() => {
-        let array = [];
+        let freeMachines = [];
+        let notFreeMachines = [];
+
         let positions = [];
         document
           .querySelectorAll("tr.cursorPointer.tutsListTutorial")
-          .forEach((e, i) => {
-            e.querySelectorAll("span").forEach((sp) => {
-              if (sp.textContent === "FREE") {
+          .forEach((trElement, i) => {
+            const spans = trElement.querySelectorAll("span");
+            let isFreeFound = false; // Bandera para saber si encontramos "FREE"
+
+            spans.forEach((spanElement, j) => {
+              if (spanElement.textContent === "FREE") {
                 positions.push(i);
+                isFreeFound = true; // Marcamos que encontramos "FREE"
+                return;
+              } else if (j === spans.length - 1 && !isFreeFound) {
+                // Solo entramos aquí si es el último span y no hemos encontrado "FREE"
+                const machineName = document
+                  .querySelectorAll(
+                    "div .greenOnHover.zIndex.htb-table-text-compact"
+                  )
+                  [i].textContent.trim();
+                notFreeMachines.push(machineName);
               }
             });
           });
+
         for (let i of positions) {
-          array.push(
+          freeMachines.push(
             document
               .querySelectorAll(
                 "div .greenOnHover.zIndex.htb-table-text-compact"
@@ -88,9 +106,14 @@ async function scrapeMachinesNames() {
           );
         }
 
-        return array;
+        return { freeMachines, notFreeMachines };
       });
-      machinesFound = [...machinesFound, ...machineNames];
+      machinesFound = [...machinesFound, ...machineNames.freeMachines];
+
+      for (const machine of machineNames.notFreeMachines) {
+        await removeMachineFromActives(machine.trim());
+      }
+
       logUpdate(
         pc.yellow(`[+] Scraping page: ${index}\n`) +
           machinesFound
@@ -105,7 +128,7 @@ async function scrapeMachinesNames() {
             .join("\n")
       );
 
-      await storeMachinesNames(machineNames);
+      await storeMachinesNames(machineNames.freeMachines);
 
       index++;
       await new Promise((resolve) => setTimeout(resolve, httpDelay));
@@ -123,17 +146,14 @@ async function scrapeMachinesNames() {
 }
 async function storeMachinesNames(machineNames) {
   try {
-    const filePath = path.join(process.cwd(), "totalMachinesNames.txt");
     let fileContent = await fs.readFile(filePath, "utf-8");
     let fileLines = fileContent
       .split(/\r?\n/)
       .map((line) => line.trim())
       .filter((line) => line !== "");
-
     let normalizedNames = new Set(fileLines);
 
     let namesToAdd = [];
-
     // Comprueba cada nombre en el array
     for (let name of machineNames) {
       let normalizedName = name.trim(); // Normaliza el nombre eliminando espacios en blanco al principio y al final
@@ -144,7 +164,6 @@ async function storeMachinesNames(machineNames) {
         sendTelegramMessage(finalMessage);
       }
     }
-
     if (namesToAdd.length > 0) {
       // Añade los nombres al archivo solo si hay nombres para añadir
       await fs.appendFile(filePath, namesToAdd.join("\n") + "\n");
@@ -154,7 +173,17 @@ async function storeMachinesNames(machineNames) {
   }
 }
 
-// Ejemplo de uso
-//storeMachinesNames([" test", "test3 ", "test3"]);
+async function removeMachineFromActives(name) {
+  try {
+    const data = await fs.readFile(filePath, "utf8");
+    const lines = data.split("\n");
+    const filteredLines = lines.filter(
+      (line) => !line.trim().includes(name.trim())
+    );
+    await fs.writeFile(filePath, filteredLines.join("\n"));
+  } catch (error) {
+    console.error(pc.red("[-] Error removing machine name", error));
+  }
+}
 
 scrapeMachinesNames();
