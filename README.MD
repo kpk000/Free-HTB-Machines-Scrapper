@@ -18,6 +18,7 @@ node index.js 20
 4. For instructions on creating your bot, see: https://sendpulse.com/knowledge-base/chatbot/telegram/create-telegram-chatbot.
 
 ## Use
+- `npm install`
 - Create a .env file in the main directory.
 - Add the following variables:
 ```shell
@@ -32,4 +33,6 @@ chatId=yourTelegramBotChatId
 ## Example
 ![use](./assets/use.png)
 
-![bot](./assets/bot.jpeg)
+ 
+<img src="./assets/bot.jpeg" width="auto" height="auto">
+
