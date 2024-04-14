@@ -1,14 +1,14 @@
-import puppeteer from "puppeteer";
 import { config } from "dotenv";
 import picocolors from "picocolors";
 import process from "node:process";
 import fs from "node:fs/promises";
 import path from "node:path";
 import logUpdate from "log-update";
-import { error, log } from "node:console";
 import { sendTelegramMessage } from "./bot.mjs";
-import { machine } from "node:os";
+import puppeteer from "puppeteer-extra";
+import StealthPlugin from "puppeteer-extra-plugin-stealth";
 
+puppeteer.use(StealthPlugin());
 config();
 const pc = picocolors;
 const emailInput = "#loginEmail";
@@ -146,7 +146,7 @@ async function scrapeMachinesNames() {
     .split("\n")
     .filter((line) => line.trim() !== "")
     .join("\n");
-  let activeMachines = `Total retired active machines\n Date: ${new Date().toLocaleString()}\n\n${data}\n\n`;
+  let activeMachines = `Total retired active machines\n Date: ${new Date().toLocaleString()}\n${fileMachines}\n\n`;
   sendTelegramMessage(activeMachines);
   console.log(pc.gray("Exiting..."));
 

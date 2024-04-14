@@ -16,6 +16,8 @@
     "log-update": "^6.0.0",
     "ora": "^8.0.1",
     "picocolors": "^1.0.0",
-    "puppeteer": "^22.6.4"
+    "puppeteer": "^22.6.4",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2"
   }
 }
