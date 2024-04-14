@@ -138,9 +138,13 @@ async function scrapeMachinesNames() {
     }
   }
 
-  await page.goto(
-    "https://app.hackthebox.com/machines/list/retired?sort_by=release-date&sort_type=desc"
-  );
+  const data = await fs.readFile(filePath, "utf8");
+  let activeMachines = `Total active machines\n Date: ${new Date().toLocaleString()}\n\n${data}\n\n`;
+  activeMachines += data
+    .split("\n")
+    .filter((line) => line.trim() !== "")
+    .join("\n");
+  sendTelegramMessage(data);
 
   await browser.close();
 }
@@ -160,7 +164,8 @@ async function storeMachinesNames(machineNames) {
       if (!normalizedNames.has(normalizedName)) {
         namesToAdd.push(normalizedName.trim()); // Añade el nombre al array si no está en el archivo
         normalizedNames.add(normalizedName.trim()); // Añade el nombre al conjunto para evitar duplicados
-        const finalMessage = `New machine found❗:\n${normalizedName.trim()}\n🤑`;
+        const finalMessage = `New machine found❗:\n${normalizedName.trim()}\n`;
+        finalMessage += `\n https://app.hackthebox.com/machines/${normalizedName.trim()}`;
         sendTelegramMessage(finalMessage);
       }
     }
