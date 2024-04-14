@@ -38,5 +38,5 @@ chatId=yourTelegramBotChatId
 ![use](./assets/use.png)
 
  
-<img src="./assets/bot.jpeg" width="400" height="auto">
+<img src=".assets/IMG_20240414_120127.jpg" width="400" height="auto">
 
