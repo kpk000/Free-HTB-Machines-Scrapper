@@ -164,7 +164,7 @@ async function storeMachinesNames(machineNames) {
       if (!normalizedNames.has(normalizedName)) {
         namesToAdd.push(normalizedName.trim()); // Añade el nombre al array si no está en el archivo
         normalizedNames.add(normalizedName.trim()); // Añade el nombre al conjunto para evitar duplicados
-        const finalMessage = `New machine found❗:\n${normalizedName.trim()}\n`;
+        let finalMessage = `New machine found❗:\n${normalizedName.trim()}\n`;
         finalMessage += `\n https://app.hackthebox.com/machines/${normalizedName.trim()}`;
         sendTelegramMessage(finalMessage);
       }
@@ -174,7 +174,8 @@ async function storeMachinesNames(machineNames) {
       await fs.appendFile(filePath, namesToAdd.join("\n") + "\n");
     }
   } catch (error) {
-    console.error(pc.red("[-] Error storing machines names", error));
+    console.log(pc.red("[-] Error storing machines names", error));
+    console.log(error);
   }
 }
 
