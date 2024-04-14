@@ -5,7 +5,7 @@ import process from "node:process";
 import fs from "node:fs/promises";
 import path from "node:path";
 import logUpdate from "log-update";
-import { log } from "node:console";
+import { error, log } from "node:console";
 import { sendTelegramMessage } from "./bot.mjs";
 import { machine } from "node:os";
 
@@ -59,12 +59,12 @@ async function scrapeMachinesNames() {
     try {
       await page.goto(
         `https://app.hackthebox.com/machines/list/retired?sort_by=release-date&sort_type=desc&page=${index}`,
-        { timeout: 3000 }
+        { timeout: 10000 }
       );
       await page.waitForSelector(
         "div .greenOnHover.zIndex.htb-table-text-compact",
         {
-          timeout: 30000,
+          timeout: 10000,
         }
       );
 
@@ -133,20 +133,25 @@ async function scrapeMachinesNames() {
       index++;
       await new Promise((resolve) => setTimeout(resolve, httpDelay));
     } catch (e) {
-      console.log(e);
+      //console.log(error)
+      console.log(pc.yellow("[+] No more pages to scrap."));
+      console.log(pc.cyan("[+] Sending info to telegram bot..."));
+
       break;
     }
   }
 
   const data = await fs.readFile(filePath, "utf8");
-  let activeMachines = `Total active machines\n Date: ${new Date().toLocaleString()}\n\n${data}\n\n`;
-  activeMachines += data
+  const fileMachines = data
     .split("\n")
     .filter((line) => line.trim() !== "")
     .join("\n");
-  sendTelegramMessage(data);
+  let activeMachines = `Total retired active machines\n Date: ${new Date().toLocaleString()}\n\n${data}\n\n`;
+  sendTelegramMessage(activeMachines);
+  console.log(pc.gray("Exiting..."));
 
   await browser.close();
+  process.exit(0);
 }
 async function storeMachinesNames(machineNames) {
   try {
