@@ -44,7 +44,6 @@ async function scrapeMachinesNames() {
     // Espera para la navegación o para un mensaje de error específico
     await page.waitForNavigation({
       waitUntil: "domcontentloaded",
-      timeout: 5000,
     });
     console.log(pc.green("[+] Login successful!"));
     console.log("[+] HTTP Delay: " + pc.magenta(httpDelay) + " ms");
@@ -64,7 +63,7 @@ async function scrapeMachinesNames() {
       await page.waitForSelector(
         "div .greenOnHover.zIndex.htb-table-text-compact",
         {
-          timeout: 10000,
+          timeout: 30000,
         }
       );
 
@@ -146,7 +145,10 @@ async function scrapeMachinesNames() {
     .split("\n")
     .filter((line) => line.trim() !== "")
     .join("\n");
-  let activeMachines = `<b>Total retired active machines</b>\n <i>Date:</i> ${new Date().toLocaleString()}\n\n${fileMachines}\n\n`;
+  let finalMessage = `<b>New machine found</b>❗:\n- <i>${normalizedName.trim()}</i>\n`;
+  finalMessage += `\n https://app.hackthebox.com/machines/${normalizedName.trim()}`;
+  sendTelegramMessage(finalMessage);
+
   sendTelegramMessage(activeMachines);
   console.log(pc.gray("Exiting..."));
 
@@ -169,7 +171,7 @@ async function storeMachinesNames(machineNames) {
       if (!normalizedNames.has(normalizedName)) {
         namesToAdd.push(normalizedName.trim()); // Añade el nombre al array si no está en el archivo
         normalizedNames.add(normalizedName.trim()); // Añade el nombre al conjunto para evitar duplicados
-        let finalMessage = `<b>New machine found<b/>❗:\n- <i>${normalizedName.trim()}</i>\n`;
+        let finalMessage = `<b>New machine found</b>❗:\n- <i>${normalizedName.trim()}</i>\n`;
         finalMessage += `\n https://app.hackthebox.com/machines/${normalizedName.trim()}`;
         sendTelegramMessage(finalMessage);
       }

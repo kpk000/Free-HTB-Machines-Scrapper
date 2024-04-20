@@ -13,7 +13,7 @@ export async function sendTelegramMessage(message) {
     const response = await axios.post(url, {
       chat_id: chatId,
       text: message,
-      parse_mode: "HTML",
+      parse_mode: "html",
     });
   } catch (error) {
     console.error("Error al enviar mensaje:", error);
