@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { config } from "dotenv";
 import picocolors from "picocolors";
 import process from "node:process";

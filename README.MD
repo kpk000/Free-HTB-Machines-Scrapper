@@ -20,8 +20,25 @@ node index.js 20000
 3. The script writes NEW machines to [./totalMachines.txt](./totalMachinesNames.txt). When it finds a new one not registered, it adds it to the file and sends you a Telegram message from your bot. 
 4. For instructions on creating your bot, see: https://sendpulse.com/knowledge-base/chatbot/telegram/create-telegram-chatbot.
 
-## Use
+## Installation
+- `git clone https://github.com/kpk000/Free-HTB-Machines-Scrapper`
+### Windows
+- Go to source folder
 - `npm install`
+
+### Linux/RaspberryOS
+- Execute the following commands
+```bash
+sudo apt install chromium-browser chromium-codecs-ffmpeg
+sudo apt-get install npm
+sudo npm install puppeteer-core@v1.11.0
+sudo npm install
+```
+- Go to [index.js](./index.js)
+- Line 29: `const browser = await puppeteer.launch({ headless: true, slowMo: 10 });`
+- Change the line for: `  const browser = await puppeteer.launch({ headless: true, slowMo: 10,executablePath: '/usr/bin/chromium-browser'});`
+
+## SetUP
 - Create a .env file in the main directory.
 - Add the following variables:
 ```shell
