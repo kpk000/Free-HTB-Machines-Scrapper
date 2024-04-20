@@ -1,4 +1,5 @@
 import axios from "axios";
+import { parse } from "dotenv";
 
 export async function sendTelegramMessage(message) {
   const botToken = process.env.botToken;
@@ -12,6 +13,7 @@ export async function sendTelegramMessage(message) {
     const response = await axios.post(url, {
       chat_id: chatId,
       text: message,
+      parse_mode: "HTML",
     });
   } catch (error) {
     console.error("Error al enviar mensaje:", error);

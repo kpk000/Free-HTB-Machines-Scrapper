@@ -146,7 +146,7 @@ async function scrapeMachinesNames() {
     .split("\n")
     .filter((line) => line.trim() !== "")
     .join("\n");
-  let activeMachines = `Total retired active machines\n Date: ${new Date().toLocaleString()}\n${fileMachines}\n\n`;
+  let activeMachines = `<b>Total retired active machines</b>\n <i>Date:</i> ${new Date().toLocaleString()}\n\n${fileMachines}\n\n`;
   sendTelegramMessage(activeMachines);
   console.log(pc.gray("Exiting..."));
 
@@ -169,7 +169,7 @@ async function storeMachinesNames(machineNames) {
       if (!normalizedNames.has(normalizedName)) {
         namesToAdd.push(normalizedName.trim()); // Añade el nombre al array si no está en el archivo
         normalizedNames.add(normalizedName.trim()); // Añade el nombre al conjunto para evitar duplicados
-        let finalMessage = `New machine found❗:\n${normalizedName.trim()}\n`;
+        let finalMessage = `<b>New machine found<b/>❗:\n- <i>${normalizedName.trim()}</i>\n`;
         finalMessage += `\n https://app.hackthebox.com/machines/${normalizedName.trim()}`;
         sendTelegramMessage(finalMessage);
       }
