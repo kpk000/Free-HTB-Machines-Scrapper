@@ -58,12 +58,12 @@ async function scrapeMachinesNames() {
     try {
       await page.goto(
         `https://app.hackthebox.com/machines/list/retired?sort_by=release-date&sort_type=desc&page=${index}`,
-        { timeout: 10000 }
+        { timeout: 30000 * 4 }
       );
       await page.waitForSelector(
         "div .greenOnHover.zIndex.htb-table-text-compact",
         {
-          timeout: 30000,
+          timeout: 30000 * 4,
         }
       );
 
